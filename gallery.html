@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix My Heart Puzzle</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fce4ec; /* Light pink */
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #e91e63;
+        }
+
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        /* Tray jahan bikhre hue pieces honge */
+        #pieces-tray {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 400px;
+        }
+
+        /* 6 Box ka Board (3 columns, 2 rows) */
+        #puzzle-board {
+            display: grid;
+            grid-template-columns: 120px 120px 120px; /* Boxes bade kar diye hain */
+            grid-template-rows: 120px 120px;
+            gap: 2px;
+            background: #ccc;
+            border: 3px solid #e91e63;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .drop-zone {
+            width: 120px;
+            height: 120px;
+            background: #fff;
+        }
+
+        /* Puzzle ke pieces ki setting */
+        .piece {
+            width: 120px;
+            height: 120px;
+            background-color: #ff9999;
+            background-size: cover; /* Photo box mein fit baithegi */
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            color: transparent; /* Numbers chupane ke liye */
+        }
+
+        /* Yahan par hum photos link kar rahe hain */
+        #piece-1 { background-image: url('img1.jpg'); }
+        #piece-2 { background-image: url('img2.jpg'); }
+        #piece-3 { background-image: url('img3.jpg'); }
+        #piece-4 { background-image: url('img4.jpg'); }
+        #piece-5 { background-image: url('img5.jpg'); }
+        #piece-6 { background-image: url('img6.jpg'); }
+
+        /* Puzzle banne ke baad ka message design */
+        #success-message {
+            display: none; 
+            margin-top: 50px;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(233, 30, 99, 0.3);
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #success-message h2 {
+            color: #d81b60;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        #success-message p {
+            font-size: 18px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .heart {
+            font-size: 60px;
+            color: #e91e63;
+            animation: heartbeat 1s infinite;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 id="title">Jaldi Se Photo Jodo! 🧩</h1>
+
+    <div id="game-container">
+        <p>In tukdon ko sahi jagah drag karo aur apna surprise dekho!</p>
+        
+        <div id="puzzle-board">
+            <div class="drop-zone" data-correct-id="1"></div>
+            <div class="drop-zone" data-correct-id="2"></div>
+            <div class="drop-zone" data-correct-id="3"></div>
+            <div class="drop-zone" data-correct-id="4"></div>
+            <div class="drop-zone" data-correct-id="5"></div>
+            <div class="drop-zone" data-correct-id="6"></div>
+        </div>
+
+        <div id="pieces-tray">
+            <div class="piece" draggable="true" id="piece-5" data-id="5">5</div>
+            <div class="piece" draggable="true" id="piece-2" data-id="2">2</div>
+            <div class="piece" draggable="true" id="piece-6" data-id="6">6</div>
+            <div class="piece" draggable="true" id="piece-1" data-id="1">1</div>
+            <div class="piece" draggable="true" id="piece-4" data-id="4">4</div>
+            <div class="piece" draggable="true" id="piece-3" data-id="3">3</div>
+        </div>
+    </div>
+
+    <div id="success-message">
+        <div class="heart">❤️</div>
+        <h2>Tumne meri bikhri photo toh jod di...</h2>
+        <p>
+            Ab kya meri life ki puzzle bhi solve karogi? 🥺<br><br>
+            <strong>Will you be mine?</strong><br>
+            <em>P.S: Main promise karta hoon, Momos ki aakhri bite hamesha tumhe dunga aur Netflix ka password bhi share kar lunga! 😉</em>
+        </p>
+    </div>
+
+    <script>
+        const pieces = document.querySelectorAll('.piece');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        let draggedPiece = null;
+
+        pieces.forEach(piece => {
+            piece.addEventListener('dragstart', function() {
+                draggedPiece = this;
+                setTimeout(() => this.style.display = 'none', 0);
+            });
+
+            piece.addEventListener('dragend', function() {
+                setTimeout(() => {
+                    this.style.display = 'flex';
+                    draggedPiece = null;
+                    checkWin();
+                }, 0);
+            });
+        });
+
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+
+            zone.addEventListener('dragenter', function(e) {
+                e.preventDefault();
+                this.style.background = '#f8bbd0'; 
+            });
+
+            zone.addEventListener('dragleave', function() {
+                this.style.background = '#fff';
+            });
+
+            zone.addEventListener('drop', function() {
+                this.style.background = '#fff';
+                if (!this.hasChildNodes()) {
+                    this.appendChild(draggedPiece);
+                }
+            });
+        });
+
+        function checkWin() {
+            let isWon = true;
+            dropZones.forEach(zone => {
+                const pieceInZone = zone.firstElementChild;
+                if (!pieceInZone || pieceInZone.getAttribute('data-id') !== zone.getAttribute('data-correct-id')) {
+                    isWon = false;
+                }
+            });
+
+            if (isWon) {
+                document.getElementById('game-container').style.display = 'none';
+                document.getElementById('title').style.display = 'none';
+                document.getElementById('success-message').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

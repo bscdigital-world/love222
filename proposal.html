@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Journey</title>
+    <style>
+        body { 
+            margin: 0; height: 100vh; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-family: 'Poppins', sans-serif;
+            /* Background Image Setup */
+            background-image: url('ghosts.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Dark overlay for readability */
+        .overlay {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+
+        h1 { color: white; margin-bottom: 30px; }
+
+        .buttons { position: relative; height: 120px; display: flex; align-items: center; justify-content: center; }
+
+        #yesBtn { 
+            padding: 15px 30px; font-size: 20px; background: #ff69b4; 
+            border: none; border-radius: 15px; color: white; cursor: pointer; 
+            transition: all 0.3s ease; /* Smooth growth */
+        }
+
+        #noBtn { 
+            padding: 15px 30px; font-size: 20px; background: #555; 
+            border: none; border-radius: 15px; color: white; 
+            position: absolute; margin-left: 120px;
+        }
+
+        #timer { font-size: 2.5rem; color: #ff9376; display: none; font-weight: bold; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="overlay">
+        <h1 id="question">Will you be mine forever?</h1>
+        
+        <div class="buttons">
+            <button id="yesBtn" onclick="startTimer()">YES 💖</button>
+            <button id="noBtn" onmouseover="moveNo()">NO</button>
+        </div>
+
+        <div id="timer"></div>
+    </div>
+
+    <script>
+        let scaleSize = 1;
+        
+        // Refresh check
+        window.onload = () => { if(localStorage.getItem('startDate')) showTimer(); };
+
+        function moveNo() {
+            const btn = document.getElementById('noBtn');
+            const yesBtn = document.getElementById('yesBtn');
+            
+            // Random movement
+            btn.style.left = (Math.random() * 300 - 150) + "px";
+            btn.style.top = (Math.random() * 200 - 100) + "px";
+            
+            // Yes button growth (Exponential growth)
+            scaleSize += 0.3;
+            yesBtn.style.transform = `scale(${scaleSize})`;
+        }
+
+        function startTimer() {
+            localStorage.setItem('startDate', new Date());
+            showTimer();
+        }
+
+        function showTimer() {
+            document.getElementById('question').innerText = "Our beautiful journey continues...";
+            document.querySelector('.buttons').style.display = 'none';
+            document.getElementById('timer').style.display = 'block';
+            
+            const startDate = new Date(localStorage.getItem('startDate'));
+            setInterval(() => {
+                const diff = new Date() - startDate;
+                const d = Math.floor(diff / 86400000);
+                const h = Math.floor((diff % 86400000) / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                document.getElementById('timer').innerText = `${d} days, ${h}h, ${m}m, ${s}s`;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
